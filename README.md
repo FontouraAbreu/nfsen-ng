@@ -19,6 +19,7 @@ nfsen-ng is an in-place replacement for the ageing nfsen.
   * [Installation](#installation)
   * [Configuration](#configuration)
   * [CLI](#cli)
+    * [CLI as a service](#cli-as-a-service)
   * [API](#api)
     * [/api/config](./API_ENDPOINTS.md#apiconfig)
     * [/api/graph](./API_ENDPOINTS.md#apigraph)
@@ -104,6 +105,30 @@ or for the daemon
 
     * `./cli.php start`
         Starts the daemon
+
+### CLI as a service
+
+You can use the CLI as a service. To do so, you can use the provided systemd service file below. You can copy it to `/etc/systemd/system/nfsen-ng.service` and then start it with `systemctl start nfsen-ng`.
+
+```ini
+[Unit]
+Description=nfsen-ng
+After=network-online.target
+
+[Service]
+Type=simple
+RemainAfterExit=yes
+restart=always
+startLimitIntervalSec=0
+restartSec=2
+ExecStart=su - www-data --shell=/bin/bash -c '/var/www/html/nfsen-ng/backend/cli.php start'
+ExecStop=su - www-data --shell=/bin/bash -c '/var/www/html/nfsen-ng/backend/cli.php stop'
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Now, you should reload and enable the service to start on boot with `systemctl daemon-reload` and `systemctl enable nfsen-ng`.
 
 ## Logs
 
